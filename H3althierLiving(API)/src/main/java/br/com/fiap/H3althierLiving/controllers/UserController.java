@@ -1,0 +1,50 @@
+package br.com.fiap.H3althierLiving.controllers;
+
+import br.com.fiap.H3althierLiving.models.User;
+import br.com.fiap.H3althierLiving.services.UserService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("users")
+@Slf4j
+public class UserController {
+    @Autowired
+    private UserService service;
+
+    @GetMapping
+    public List<User> listAll(){
+        return service.getAllUsers();
+    }
+
+    @PostMapping
+    public ResponseEntity<User> createTask(@RequestBody User user){
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(service.addUser(user));
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id){
+        log.info("Obtendo dados do usuário {}", id);
+        return ResponseEntity.ok(service.getUserById(id));
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id){
+        log.info("Deletando usuário com id {}", id );
+        service.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user){
+        log.info("Atualizando usuário com id {} com os dados {}", id, user);
+        return ResponseEntity.ok( service.updateUser(id, user) );
+    }
+}
