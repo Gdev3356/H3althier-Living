@@ -3,6 +3,8 @@ package br.com.fiap.H3althierLiving.controllers;
 import br.com.fiap.H3althierLiving.models.User;
 import br.com.fiap.H3althierLiving.services.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +14,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("users")
-@Slf4j
 public class UserController {
     @Autowired
     private UserService service;
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @GetMapping
     public List<User> listAll(){
@@ -23,7 +26,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createTask(@RequestBody User user){
+    public ResponseEntity<User> createUser(@RequestBody User user){
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(service.addUser(user));

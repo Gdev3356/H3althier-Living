@@ -19,11 +19,11 @@ public class UserService {
         return repository.findAll();
     }
 
-    public Task addUser(User user){
+    public User addUser(User user){
         return repository.save(user);
     }
 
-    public Task getUserById(Long id){
+    public User getUserById(Long id){
         return findUserById(id);
     }
 
@@ -32,13 +32,13 @@ public class UserService {
         repository.deleteById(id);
     }
 
-    public Task updateUser(Long id, User newUser) {
+    public User updateUser(Long id, User newUser) {
         findUserById(id);
         newUser.setId(id);
         return repository.save(newUser);
     }
 
-    private Task findUserById(Long id) {
+    private User findUserById(Long id) {
         return repository.findById(id).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário com id " + id + " não encontrado")
         );
