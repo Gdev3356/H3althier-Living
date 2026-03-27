@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>H3althier Living — Usuários</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy-deep:  #060E24;
+      --navy-dark:  #0D1B3E;
+      --navy-mid:   #1B3A6B;
+      --navy-light: #2952A3;
+      --teal:       #3DD9C4;
+      --teal-dim:   rgba(61,217,196,0.12);
+      --white:      #F0F4FF;
+      --muted:      rgba(240,244,255,0.45);
+      --border:     rgba(61,217,196,0.15);
+      --sidebar-w:  260px;
+    }
+
+    html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--navy-deep); color: var(--white); }
+
+    .layout { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: var(--sidebar-w);
+      background: rgba(13,27,62,0.95);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      padding: 28px 20px;
+      position: fixed; top: 0; bottom: 0; left: 0;
+      backdrop-filter: blur(12px);
+      z-index: 50;
+    }
+
+    .sidebar-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 40px; padding: 0 8px; }
+    .logo-mark { width: 36px; height: 36px; background: linear-gradient(135deg, var(--teal), var(--navy-light)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 14px; color: var(--navy-deep); flex-shrink: 0; }
+    .logo-text { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; line-height: 1.2; }
+    .logo-text span { color: var(--teal); display: block; font-size: 11px; font-weight: 400; opacity: 0.6; }
+
+    .nav { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .nav-section-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); padding: 16px 12px 6px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 10px; font-size: 14px; color: var(--muted); cursor: pointer; transition: background 0.15s, color 0.15s; text-decoration: none; }
+    .nav-item:hover { background: rgba(61,217,196,0.08); color: var(--white); }
+    .nav-item.active { background: var(--teal-dim); color: var(--teal); }
+
+    .sidebar-footer { padding: 0 8px; }
+    .user-chip { display: flex; align-items: center; gap: 12px; padding: 14px 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 12px; }
+    .avatar { width: 34px; height: 34px; background: linear-gradient(135deg, var(--navy-light), var(--teal)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 14px; color: white; flex-shrink: 0; }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: 11px; color: var(--muted); }
+    .logout-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 4px; transition: color 0.2s; }
+    .logout-btn:hover { color: #ff8080; }
+
+    .main {
+      margin-left: var(--sidebar-w); flex: 1;
+      padding: 40px 48px;
+      background: radial-gradient(ellipse 70% 50% at 80% 0%, rgba(41,82,163,0.2) 0%, transparent 50%), var(--navy-deep);
+    }
+
+    .page-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 36px;
+    }
+
+    .page-title { font-family: 'Outfit', sans-serif; font-size: 30px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
+    .page-sub { font-size: 14px; color: var(--muted); }
+
+    .search-box {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(27,58,107,0.4);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 16px;
+      min-width: 240px;
+    }
+
+    .search-box input {
+      background: none; border: none; outline: none;
+      color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 14px;
+      width: 100%;
+    }
+
+    .search-box input::placeholder { color: rgba(240,244,255,0.3); }
+
+    .users-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .user-card {
+      background: rgba(27,58,107,0.25);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .user-card:hover { transform: translateY(-3px); border-color: rgba(61,217,196,0.3); box-shadow: 0 12px 40px rgba(6,14,36,0.4); }
+
+    .card-top { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+
+    .card-avatar {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 20px;
+      color: white; flex-shrink: 0;
+    }
+
+    .card-info { flex: 1; min-width: 0; }
+    .card-name { font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-email { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .me-tag {
+      font-size: 10px; font-weight: 700;
+      background: var(--teal-dim); color: var(--teal);
+      padding: 3px 8px; border-radius: 6px;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    .stats-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 16px;
+    }
+
+    .mini-stat {
+      background: rgba(13,27,62,0.5);
+      border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 12px;
+    }
+
+    .mini-val { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700; color: var(--teal); }
+    .mini-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+
+    .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+    .card-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .pill {
+      font-size: 11px; padding: 4px 10px; border-radius: 20px;
+      background: rgba(41,82,163,0.3); color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .pill.highlight { color: var(--white); background: rgba(61,217,196,0.1); border-color: rgba(61,217,196,0.25); }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center; padding: 60px 20px; color: var(--muted);
+    }
+
+    .loading { grid-column: 1 / -1; text-align: center; padding: 60px; color: var(--muted); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .user-card:nth-child(1) { animation-delay: 0.00s; }
+    .user-card:nth-child(2) { animation-delay: 0.05s; }
+    .user-card:nth-child(3) { animation-delay: 0.10s; }
+    .user-card:nth-child(4) { animation-delay: 0.15s; }
+    .user-card:nth-child(5) { animation-delay: 0.20s; }
+    .user-card:nth-child(6) { animation-delay: 0.25s; }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">H3</div>
+      <div class="logo-text">H3althier <span>Living</span></div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section-label">Geral</div>
+      <a href="dashboard.html" class="nav-item">
+        Dashboard
+      </a>
+      <a href="users.html" class="nav-item active">
+        Usuários
+      </a>
+      <div class="nav-section-label">Atividade</div>
+      <a href="dashboard.html" class="nav-item">
+        Minhas Tarefas
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="avatar" id="sidebarAvatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebarName">Carregando...</div>
+          <div class="user-role">Usuário</div>
+        </div>
+        <button class="logout-btn" onclick="logout()" title="Sair">⏻</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Usuários</h1>
+        <p class="page-sub">Todos os usuários cadastrados no sistema.</p>
+      </div>
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" id="searchInput" placeholder="Buscar por nome..." oninput="filterUsers()" />
+      </div>
+    </div>
+
+    <div class="users-grid" id="usersGrid">
+      <div class="loading">Carregando usuários...</div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const API = 'http://localhost:8080';
+  let allUsers = [];
+  let currentUser = null;
+
+  const avatarColors = [
+    'linear-gradient(135deg, #2952A3, #3DD9C4)',
+    'linear-gradient(135deg, #6B48FF, #3DD9C4)',
+    'linear-gradient(135deg, #FF6B6B, #FFB347)',
+    'linear-gradient(135deg, #1B6CA8, #48C9B0)',
+    'linear-gradient(135deg, #8E44AD, #3DD9C4)',
+    'linear-gradient(135deg, #2E86AB, #A23B72)',
+  ];
+
+  async function init() {
+    const stored = sessionStorage.getItem('currentUser');
+    if (!stored) { window.location.href = 'index.html'; return; }
+    currentUser = JSON.parse(stored);
+
+    const firstName = currentUser.name.split(' ')[0];
+    document.getElementById('sidebarName').textContent = currentUser.name;
+    document.getElementById('sidebarAvatar').textContent = firstName[0].toUpperCase();
+
+    await loadUsers();
+  }
+
+  async function loadUsers() {
+    try {
+      const res = await fetch(`${API}/users`);
+      allUsers = await res.json();
+      renderUsers(allUsers);
+    } catch(e) {
+      document.getElementById('usersGrid').innerHTML =
+        `<div class="empty-state"><p>Não foi possível conectar à API.<br/>A aplicação Spring está rodando?</p></div>`;
+    }
+  }
+
+  function renderUsers(users) {
+    const grid = document.getElementById('usersGrid');
+
+    if (!users.length) {
+      grid.innerHTML = `<div class="empty-state"><p>Nenhum usuário encontrado.</p></div>`;
+      return;
+    }
+
+    grid.innerHTML = users.map((user, i) => {
+      const isMe = currentUser && user.id === currentUser.id;
+      const initials = user.name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+      const color = avatarColors[i % avatarColors.length];
+
+      const bmi = user.weight && user.height
+        ? (user.weight / (user.height * user.height)).toFixed(1)
+        : null;
+
+      return `
+        <div class="user-card">
+          <div class="card-top">
+            <div class="card-avatar" style="background: ${color}">${initials}</div>
+            <div class="card-info">
+              <div class="card-name">${user.name}</div>
+              <div class="card-email">${user.email || '—'}</div>
+            </div>
+            ${isMe ? '<span class="me-tag">Você</span>' : ''}
+          </div>
+
+          <div class="stats-row">
+            <div class="mini-stat">
+              <div class="mini-val">${user.age || '—'}</div>
+              <div class="mini-label">Anos</div>
+            </div>
+            <div class="mini-stat">
+              <div class="mini-val">${bmi !== null ? bmi : '—'}</div>
+              <div class="mini-label">IMC</div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="card-meta">
+            ${user.gender ? `<span class="pill">${user.gender}</span>` : ''}
+            ${user.weight ? `<span class="pill">${user.weight} kg</span>` : ''}
+            ${user.height ? `<span class="pill">${user.height} m</span>` : ''}
+            ${user.dailyStepGoal ? `<span class="pill highlight">🎯 ${user.dailyStepGoal.toLocaleString()} passos/dia</span>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function filterUsers() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = allUsers.filter(u =>
+      u.name.toLowerCase().includes(query) ||
+      (u.email && u.email.toLowerCase().includes(query))
+    );
+    renderUsers(filtered);
+  }
+
+  function logout() {
+    sessionStorage.removeItem('currentUser');
+    window.location.href = 'index.html';
+  }
+  init();
+</script>
+</body>
+</html>
