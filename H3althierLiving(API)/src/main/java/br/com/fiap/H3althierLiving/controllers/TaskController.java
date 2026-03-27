@@ -2,7 +2,6 @@ package br.com.fiap.H3althierLiving.controllers;
 
 import br.com.fiap.H3althierLiving.models.Task;
 import br.com.fiap.H3althierLiving.services.TaskService;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +20,8 @@ public class TaskController {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @GetMapping
-    public List<Task> listAll(){
-        return service.getAllTasks();
+    public ResponseEntity<List<Task>> listAll() {
+        return ResponseEntity.ok(service.getAllTasks());
     }
 
     @PostMapping
