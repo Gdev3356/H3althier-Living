@@ -22,8 +22,4 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "user_id") // This creates the link in the DB
     private User user;
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 }

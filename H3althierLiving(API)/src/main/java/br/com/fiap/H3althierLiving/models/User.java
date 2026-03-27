@@ -32,8 +32,4 @@ public class User {
     private Integer dailyStepGoal;
 
     private LocalDate creationDate = LocalDate.now();
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 }
