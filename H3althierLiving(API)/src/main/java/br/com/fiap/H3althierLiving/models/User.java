@@ -30,8 +30,8 @@ public class User {
     private int age;
     private String gender;
 
-    private Double weight; // In kg
-    private Double height; // In meters
+    private Double weight;
+    private Double height;
     private Integer dailyStepGoal;
 
     private LocalDate creationDate = LocalDate.now();

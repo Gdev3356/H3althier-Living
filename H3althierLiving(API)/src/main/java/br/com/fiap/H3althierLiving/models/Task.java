@@ -17,9 +17,10 @@ public class Task {
 
     private String description;
     private boolean completed;
-    private int calorieImpact; // e.g., -200 for exercise, +500 for a meal
+    @Column(columnDefinition = "int default 0")
+    private Integer calorieImpact = 0;
 
     @ManyToOne
-    @JoinColumn(name = "user_id") // This creates the link in the DB
+    @JoinColumn(name = "user_id")
     private User user;
 }
