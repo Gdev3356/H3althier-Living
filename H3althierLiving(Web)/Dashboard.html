@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>H3althier Living — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy-deep:  #060E24;
+      --navy-dark:  #0D1B3E;
+      --navy-mid:   #1B3A6B;
+      --navy-light: #2952A3;
+      --teal:       #3DD9C4;
+      --teal-dim:   rgba(61,217,196,0.12);
+      --white:      #F0F4FF;
+      --muted:      rgba(240,244,255,0.45);
+      --border:     rgba(61,217,196,0.15);
+      --sidebar-w:  260px;
+    }
+
+    html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--navy-deep); color: var(--white); overflow-x: hidden; }
+
+    .layout { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: var(--sidebar-w);
+      background: rgba(13,27,62,0.95);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      padding: 28px 20px;
+      position: fixed; top: 0; bottom: 0; left: 0;
+      backdrop-filter: blur(12px);
+      z-index: 50;
+    }
+
+    .sidebar-logo {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 40px; padding: 0 8px;
+    }
+
+    .logo-mark {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--teal), var(--navy-light));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 14px;
+      color: var(--navy-deep); flex-shrink: 0;
+    }
+
+    .logo-text { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; line-height: 1.2; }
+    .logo-text span { color: var(--teal); display: block; font-size: 11px; font-weight: 400; opacity: 0.6; }
+
+    .nav { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+
+    .nav-section-label {
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1.5px;
+      color: var(--muted); padding: 16px 12px 6px;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 12px;
+      border-radius: 10px;
+      font-size: 14px; color: var(--muted);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      text-decoration: none;
+    }
+
+    .nav-item:hover { background: rgba(61,217,196,0.08); color: var(--white); }
+    .nav-item.active { background: var(--teal-dim); color: var(--teal); }
+
+    .sidebar-footer { padding: 0 8px; }
+
+    .user-chip {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .avatar {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--navy-light), var(--teal));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 14px;
+      color: white; flex-shrink: 0;
+    }
+
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: 11px; color: var(--muted); }
+
+    .logout-btn {
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 16px; padding: 4px;
+      transition: color 0.2s;
+    }
+    .logout-btn:hover { color: #ff8080; }
+
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 40px 48px;
+      background:
+        radial-gradient(ellipse 70% 50% at 80% 0%, rgba(41,82,163,0.2) 0%, transparent 50%),
+        var(--navy-deep);
+    }
+
+    .page-header { margin-bottom: 36px; }
+
+    .page-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 30px; font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+
+    .page-sub { font-size: 14px; color: var(--muted); }
+
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 20px; margin-bottom: 36px;
+    }
+
+    .stat-card {
+      background: rgba(27,58,107,0.3);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      transition: transform 0.2s, border-color 0.2s;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .stat-card:nth-child(2) { animation-delay: 0.05s; }
+    .stat-card:nth-child(3) { animation-delay: 0.10s; }
+    .stat-card:nth-child(4) { animation-delay: 0.15s; }
+
+    .stat-card:hover { transform: translateY(-2px); border-color: rgba(61,217,196,0.3); }
+
+    .stat-num {
+      font-family: 'Outfit', sans-serif;
+      font-size: 32px; font-weight: 800;
+      color: var(--teal); line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 380px; gap: 28px; align-items: start; }
+
+    .panel {
+      background: rgba(27,58,107,0.25);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    .panel-header {
+      padding: 22px 28px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .panel-title { font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; }
+
+    .badge {
+      background: var(--teal-dim); color: var(--teal);
+      font-size: 12px; font-weight: 600;
+      padding: 3px 10px; border-radius: 20px;
+    }
+
+    .task-list { padding: 12px 16px; max-height: 440px; overflow-y: auto; }
+
+    .task-list::-webkit-scrollbar { width: 4px; }
+    .task-list::-webkit-scrollbar-track { background: transparent; }
+    .task-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .task-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 12px;
+      border-radius: 12px;
+      transition: background 0.15s;
+      border-bottom: 1px solid rgba(61,217,196,0.06);
+    }
+
+    .task-item:last-child { border-bottom: none; }
+    .task-item:hover { background: rgba(61,217,196,0.05); }
+
+    .task-check {
+      width: 20px; height: 20px; flex-shrink: 0;
+      border: 2px solid var(--border); border-radius: 6px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+      font-size: 11px;
+    }
+
+    .task-check.done { background: var(--teal); border-color: var(--teal); color: var(--navy-deep); }
+
+    .task-body { flex: 1; min-width: 0; }
+
+    .task-desc {
+      font-size: 14px; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+      transition: opacity 0.2s;
+    }
+
+    .task-desc.done { text-decoration: line-through; opacity: 0.4; }
+
+    .task-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    .calorie-tag {
+      font-size: 11px; font-weight: 600;
+      padding: 3px 8px; border-radius: 8px; flex-shrink: 0;
+    }
+
+    .calorie-tag.pos { background: rgba(255,100,100,0.15); color: #ff9090; }
+    .calorie-tag.neg { background: rgba(61,217,196,0.12); color: var(--teal); }
+
+    .task-del {
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 14px; padding: 4px; flex-shrink: 0;
+      transition: color 0.2s;
+    }
+    .task-del:hover { color: #ff8080; }
+
+    .empty-state {
+      text-align: center; padding: 40px 20px;
+      color: var(--muted); font-size: 14px;
+    }
+
+    .form-panel {
+      background: rgba(27,58,107,0.3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      animation: fadeUp 0.6s 0.25s ease both;
+    }
+
+    .form-title { font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 22px; }
+
+    .field { margin-bottom: 16px; }
+
+    .field label {
+      display: block; font-size: 11px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: var(--muted); margin-bottom: 7px;
+    }
+
+    .field input, .field textarea {
+      width: 100%;
+      background: rgba(13,27,62,0.6);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif; font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      resize: none;
+    }
+
+    .field textarea { height: 80px; }
+
+    .field input:focus, .field textarea:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(61,217,196,0.1);
+    }
+
+    .field input::placeholder, .field textarea::placeholder { color: rgba(240,244,255,0.2); }
+
+    .calorie-hint {
+      font-size: 11px; color: var(--muted); margin-top: 5px;
+    }
+
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 0;
+    }
+
+    .toggle-label { font-size: 14px; }
+
+    .toggle {
+      width: 42px; height: 24px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      cursor: pointer; position: relative;
+      transition: background 0.2s;
+      border: none; padding: 0;
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute; top: 3px; left: 3px;
+      width: 18px; height: 18px;
+      background: white; border-radius: 50%;
+      transition: transform 0.2s;
+    }
+
+    .toggle.on { background: var(--teal); }
+    .toggle.on::after { transform: translateX(18px); }
+
+    .btn-add {
+      width: 100%;
+      background: linear-gradient(135deg, var(--teal), #2bc8b5);
+      color: var(--navy-deep); border: none;
+      border-radius: 10px; padding: 13px;
+      font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      margin-top: 8px;
+    }
+
+    .btn-add:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    .error-inline {
+      font-size: 12px; color: #ff8080; margin-top: 4px; display: none;
+    }
+
+    .toast {
+      position: fixed; bottom: 32px; right: 32px;
+      background: var(--navy-mid); color: var(--white);
+      border: 1px solid var(--border); border-left: 3px solid var(--teal);
+      font-size: 14px; padding: 14px 20px; border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(6,14,36,0.5);
+      transform: translateY(80px); opacity: 0;
+      transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
+      z-index: 200;
+    }
+
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { border-left-color: #ff8080; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">H3</div>
+      <div class="logo-text">H3althier <span>Living</span></div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-section-label">Geral</div>
+      <a href="dashboard.html" class="nav-item active">
+        Dashboard
+      </a>
+      <a href="users.html" class="nav-item">
+        Usuários
+      </a>
+
+      <div class="nav-section-label">Atividade</div>
+      <a href="#" class="nav-item" onclick="scrollToTasks()">
+         Minhas Tarefas
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="avatar" id="sidebarAvatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebarName">Carregando...</div>
+          <div class="user-role">Usuário</div>
+        </div>
+        <button class="logout-btn" onclick="logout()" title="Sair">⏻</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <h1 class="page-title" id="greetingTitle">Olá!</h1>
+      <p class="page-sub" id="greetingSub">Veja seu progresso de hoje.</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num" id="statTotal">0</div>
+        <div class="stat-label">Total de tarefas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statDone">0</div>
+        <div class="stat-label">Concluídas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statCalories">0</div>
+        <div class="stat-label">Saldo calórico (kcal)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statStepGoal">—</div>
+        <div class="stat-label">Meta de passos/dia</div>
+      </div>
+    </div>
+
+    <div class="two-col" id="tasksSection">
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Minhas Atividades</span>
+          <span class="badge" id="taskBadge">0</span>
+        </div>
+        <div class="task-list" id="taskList">
+          <div class="empty-state">
+            <p>Nenhuma atividade ainda.<br/>Adicione sua primeira tarefa!</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-panel">
+        <h3 class="form-title">+ Nova Atividade</h3>
+
+        <div class="field">
+          <label>Descrição *</label>
+          <textarea id="taskDesc" placeholder="Ex: Corrida de 30 minutos no parque..."></textarea>
+          <div class="error-inline" id="descError">Campo obrigatório.</div>
+        </div>
+        <div class="field">
+          <label>Impacto Calórico (kcal)</label>
+          <input type="number" id="calorieImpact" placeholder="Ex: -300 (exercício) ou +600 (refeição)" />
+          <div class="calorie-hint">Negativo = exercício queimou cal. · Positivo = refeição/ganho</div>
+        </div>
+
+        <div class="toggle-row">
+          <span class="toggle-label">Marcar como concluída</span>
+          <button class="toggle" id="completedToggle" onclick="toggleCompleted()"></button>
+        </div>
+
+        <button class="btn-add" onclick="addTask()">Registrar Atividade</button>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const API = 'http://localhost:8080';
+  let currentUser = null;
+  let completedVal = false;
+
+  function init() {
+    const stored = sessionStorage.getItem('currentUser');
+    if (!stored) { window.location.href = 'index.html'; return; }
+    currentUser = JSON.parse(stored);
+
+    const firstName = currentUser.name.split(' ')[0];
+    document.getElementById('sidebarName').textContent = currentUser.name;
+    document.getElementById('sidebarAvatar').textContent = firstName[0].toUpperCase();
+    document.getElementById('greetingTitle').textContent = `Olá, ${firstName}!`;
+    document.getElementById('greetingSub').textContent = `Hoje é ${new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' })}`;
+
+    if (currentUser.dailyStepGoal) {
+      document.getElementById('statStepGoal').textContent = currentUser.dailyStepGoal.toLocaleString();
+    }
+
+    loadTasks();
+  }
+
+  async function loadTasks() {
+    try {
+      const res = await fetch(`${API}/tasks`);
+      const all = await res.json();
+      const myTasks = all.filter(t => t.user && t.user.id === currentUser.id);
+      renderTasks(myTasks);
+    } catch(e) {
+      showToast('Erro ao carregar tarefas', true);
+    }
+  }
+
+  function renderTasks(tasks) {
+    const list = document.getElementById('taskList');
+    document.getElementById('statTotal').textContent = tasks.length;
+    document.getElementById('statDone').textContent  = tasks.filter(t => t.completed).length;
+    document.getElementById('taskBadge').textContent = tasks.length;
+
+    const calSum = tasks.reduce((s, t) => s + (t.calorieImpact || 0), 0);
+    const calEl  = document.getElementById('statCalories');
+    calEl.textContent = (calSum >= 0 ? '+' : '') + calSum;
+    calEl.style.color = calSum > 0 ? '#ff9090' : 'var(--teal)';
+
+    if (!tasks.length) {
+      list.innerHTML = `<div class="empty-state"><p>Nenhuma atividade ainda.<br/>Adicione sua primeira tarefa!</p></div>`;
+      return;
+    }
+
+    list.innerHTML = tasks.map(t => {
+      const calSign = t.calorieImpact > 0 ? 'pos' : 'neg';
+      const calLabel = t.calorieImpact !== 0 ? `<span class="calorie-tag ${calSign}">${t.calorieImpact > 0 ? '+' : ''}${t.calorieImpact} kcal</span>` : '';
+      return `
+        <div class="task-item">
+          <div class="task-check ${t.completed ? 'done' : ''}" onclick="toggleTask(${t.id}, ${t.completed})">
+            ${t.completed ? '✓' : ''}
+          </div>
+          <div class="task-body">
+            <div class="task-desc ${t.completed ? 'done' : ''}">${t.description}</div>
+            <div class="task-meta">ID: ${t.id}</div>
+          </div>
+          ${calLabel}
+          <button class="task-del" onclick="deleteTask(${t.id})" title="Remover">✕</button>
+        </div>`;
+    }).join('');
+  }
+
+  async function addTask() {
+    const descEl = document.getElementById('taskDesc');
+    const calEl = document.getElementById('calorieImpact');
+    
+    const desc = descEl.value.trim();
+    const calories = parseInt(calEl.value) || 0;
+
+    if (!desc) {
+        document.getElementById('descError').style.display = 'block';
+        return;
+    }
+
+    const payload = {
+        description: desc,
+        calorieImpact: calories,
+        completed: completedVal,
+        user: { id: parseInt(currentUser.id) }
+    };
+
+    try {
+        const res = await fetch(`${API}/tasks`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+      if (res.ok) {
+        document.getElementById('taskDesc').value = '';
+        document.getElementById('calorieImpact').value = '';
+        completedVal = false;
+        document.getElementById('completedToggle').classList.remove('on');
+        showToast('✓ Atividade registrada!');
+        loadTasks();
+      } else {
+        const err = await res.json();
+        showToast(err.erro || 'Erro ao adicionar tarefa', true);
+      }
+    } catch(e) {
+      showToast('Erro de conexão com a API', true);
+    }
+  }
+
+  async function deleteTask(id) {
+    if (!confirm('Remover esta atividade?')) return;
+    try {
+      await fetch(`${API}/tasks/${id}`, { method: 'DELETE' });
+      showToast('Atividade removida.');
+      loadTasks();
+    } catch(e) {
+      showToast('Erro ao remover', true);
+    }
+  }
+
+  async function toggleTask(id, current) {
+    const res = await fetch(`${API}/tasks/${id}`);
+    const task = await res.json();
+    task.completed = !current;
+    task.calorieImpact = task.calorieImpact ?? 0;
+    await fetch(`${API}/tasks/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(task)
+    });
+    loadTasks();
+}
+
+  function toggleCompleted() {
+    completedVal = !completedVal;
+    document.getElementById('completedToggle').classList.toggle('on', completedVal);
+  }
+
+  function scrollToTasks() {
+    document.getElementById('tasksSection').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function logout() {
+    sessionStorage.removeItem('currentUser');
+    window.location.href = 'index.html';
+  }
+
+  let toastTimer;
+  function showToast(msg, error = false) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast show' + (error ? ' error' : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+  }
+  init();
+</script>
+</body>
+</html>
