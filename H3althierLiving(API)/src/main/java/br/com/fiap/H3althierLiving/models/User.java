@@ -27,7 +27,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    private int age;
+    private Integer age;
     private String gender;
 
     private Double weight;
